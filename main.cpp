@@ -3,12 +3,20 @@
 #include <ctime>
 #include <vector>
 #include <list>
+#include <array>
 
 typedef std::vector<int> Pack;
 typedef std::vector<int> Hand;
 
+std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>::iterator end, const char& value) {
+	for (; start != end; ++start) {
+		if (*start == value) return start;
+	}
+	return end;
+}
+
 void showCards(const Hand &h) {
-	//DÃ©finition cartes
+	//Définition cartes
 	char color[4] = {
 		'S',
 		'H',
@@ -40,8 +48,8 @@ void showCards(const Hand &h) {
 		c[i].sort();
 		c[i].reverse();
 
-		std::list<char>::iterator searchS = std::find(c[i].begin(), c[i].end(), 'S');
-		std::list<char>::iterator searchR = std::find(c[i].begin(), c[i].end(), 'R');
+		std::list<char>::iterator searchS = find(c[i].begin(), c[i].end(), 'S');
+		std::list<char>::iterator searchR = find(c[i].begin(), c[i].end(), 'R');
 
 		if (searchS != c[i].end()) *searchS = 'A';
 		if (searchR != c[i].end()) *searchR = 'K';
@@ -53,21 +61,23 @@ void showCards(const Hand &h) {
 	}
 	for (int i = 0; i < 4; i++) {
 		for (char cha : c[i]) {
-			if(cha == 'I') std::cout << " " << 10;
-			else std::cout << " " << cha;
+			if(cha == 'I') std::cout << 10;
+			else std::cout << cha;
+
+			std::cout << " ";
 		}
 		std::cout << std::endl;
 	}
 }
 
-int main() {
+std::array<Hand, 4> deal() {
 	std::srand(std::time(0));
 	Pack pack, pack1;
-	Hand hands[4];
+	std::array<Hand, 4> hands;
 
 	//Remplis le paquet
 	for (int i = 0; i < 52; i++) pack.push_back(i);
-	//MÃ©lange
+	//Mélange
 	for (int i = 51; i >= 0; i--) {
 		std::vector<int>::iterator it = pack.begin();
 		int j = (i != 0) ? (rand() % i) : 0;
@@ -75,7 +85,6 @@ int main() {
 		pack.erase(it + j);
 	}
 	pack = pack1;
-	pack1.clear();
 
 	//Distribue
 	for (int i = 0; i < 4; i++) {
@@ -84,10 +93,12 @@ int main() {
 			pack.pop_back();
 		}
 	}
-	pack.clear();
-	
-	showCards(hands[2]);
+	return hands;
+}
 
+int main() {
+	std::array<Hand, 4> hands = deal();
+	showCards(hands[2]);
 	system("PAUSE");
 	return 0;
 }
