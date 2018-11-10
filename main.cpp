@@ -9,6 +9,96 @@ typedef std::array<int, 2> Card;
 typedef std::vector<Card> Pack;
 typedef std::vector<Card> Hand;
 
+//Définition cartes
+char color[4] = {
+		'S',
+		'H',
+		'D',
+		'C'
+};
+
+char p[13] = {
+	'2',
+	'3',
+	'4',
+	'5',
+	'6',
+	'7',
+	'8',
+	'9',
+	'I',
+	'J',
+	'Q',
+	'R',
+	'S'
+};
+
+Card translate(std::string c) {
+	int col, pow;
+	switch (c[0]) {
+	case 'S':
+		col = 0;
+		break;
+	case 'H':
+		col = 1;
+		break;
+	case 'D':
+		col = 2;
+		break;
+	case 'C':
+		col = 3;
+		break;
+	default:
+		col = -1;
+	}
+	
+	switch (c[1]) {
+	case '2':
+		pow = 0;
+		break;
+	case '3':
+		pow = 1;
+		break;
+	case '4':
+		pow = 2;
+		break;
+	case '5':
+		pow = 3;
+		break;
+	case '6':
+		pow = 4;
+		break;
+	case '7':
+		pow = 5;
+		break;
+	case '8':
+		pow = 6;
+		break;
+	case '9':
+		pow = 7;
+		break;
+	case '1':
+		pow = 8;
+		break;
+	case 'J':
+		pow = 9;
+		break;
+	case 'Q':
+		pow = 10;
+		break;
+	case 'K':
+		pow = 11;
+		break;
+	case 'A':
+		pow = 12;
+		break;
+	default:
+		pow = -1;
+	}
+
+	return {col, pow};
+}
+
 Card compare(int color, int contract, Card const& a, Card const& b) {
 	Card c;
 	int x = a[0] - b[0], y = a[1] - b[1];
@@ -53,34 +143,10 @@ std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>:
 }
 
 void showCards(const Hand &h) {
-	//Définition cartes
-	char color[4] = {
-		'S',
-		'H',
-		'D',
-		'C'
-	};
-
-	char p[13] = {
-		'2',
-		'3',
-		'4',
-		'5',
-		'6',
-		'7',
-		'8',
-		'9',
-		'I',
-		'J',
-		'Q',
-		'R',
-		'S'
-	};
-
 	//Adapte l'affichage (classe les cartes par ordre de puissance) et affiche
 	std::list<char> c[4];
 	for (int i = 0; i < 13; i++) c[h[i][0]].push_back(p[h[i][1]]);
-	
+
 	for (int i = 0; i < 4; i++) {
 		c[i].sort();
 		c[i].reverse();
@@ -98,7 +164,7 @@ void showCards(const Hand &h) {
 	}
 	for (int i = 0; i < 4; i++) {
 		for (char cha : c[i]) {
-			if(cha == 'I') std::cout << 10;
+			if (cha == 'I') std::cout << 10;
 			else std::cout << cha;
 
 			std::cout << " ";
@@ -147,29 +213,6 @@ int main() {
 	showCards(hands[3]);
 
 	Card a = hands[3][2], b = hands[2][8];
-
-	char color[4] = {
-		'S',
-		'H',
-		'D',
-		'C'
-	};
-
-	char p[13] = {
-		'2',
-		'3',
-		'4',
-		'5',
-		'6',
-		'7',
-		'8',
-		'9',
-		'10',
-		'J',
-		'Q',
-		'K',
-		'A'
-	};
 
 	std::cout << std::endl << std::endl << "joueur 1 : " << color[a[0]] << p[a[1]] << std::endl;
 	std::cout << "joueur 2 : " << color[b[0]] << p[b[1]] << std::endl;
