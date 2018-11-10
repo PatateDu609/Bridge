@@ -143,7 +143,7 @@ std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>:
 	return end;
 }
 
-std::vector<char>::iterator find(std::vector<char>::iterator start, std::vector<char>::iterator end, const Card& value) {
+std::vector<Card>::iterator find(std::vector<Card>::iterator start, std::vector<Card>::iterator end, const Card& value) {
 	for (; start != end; ++start) {
 		if (*start == value) return start;
 	}
@@ -181,7 +181,7 @@ void showCards(const Hand &h) {
 	}
 }
 bool playable(Hand h, Card c) {
-	return find(h[0], h[12], c) != h.end();
+	return find(h[0], h[12], c) != *h.end();
 }
 
 std::array<Hand, 4> deal() {
@@ -219,11 +219,12 @@ int main() {
 	std::array<Hand, 4> hands = deal();
 	std::string command; //commande play, pour jouer son tour
 	std::string card;	//carte du joueur
+	Card cardT;
 	
 	bool verify = 1;
 	while (verify) {//lecture de la commande et affectation aux variables
 		std::getline(std::cin, command);
-
+		
 		if (command == "stop") {
 			std::cout << "Stopping program" << std::endl;
 			return(0);
@@ -232,27 +233,11 @@ int main() {
 		else if (command == "play") {
 			std::cout << "Enter card" << std::endl;
 			std::getline(std::cin, card);
-
+			cardT = translate(card);
 			verify = 0;
 		}
 	}
 	
-	std::cout << "joueur 1" << std::endl << std::endl;
-	showCards(hands[2]);
-	std::cout << std::endl;
-	std::cout << "joueur 2" << std::endl << std::endl;
-	showCards(hands[3]);
-
-	Card a = hands[3][2], b = hands[2][8];
-
-	std::cout << std::endl << std::endl << "joueur 1 : " << color[a[0]] << p[a[1]] << std::endl;
-	std::cout << "joueur 2 : " << color[b[0]] << p[b[1]] << std::endl;
-
-	Card c = compare(2, 2, a, b);
-	if (c == a) std::cout << "joueur 1" << std::endl;
-	else if (c == b) std::cout << "joueur 2" << std::endl;
-	else std::cout << "Les 2 se sont defausses" << std::endl;
-
 	system("PAUSE");
 	return 0;
 }
