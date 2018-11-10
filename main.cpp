@@ -5,6 +5,7 @@
 #include <list>
 #include <array>
 #include <string>
+#include <stdio.h>
 
 typedef std::array<int, 2> Card;
 typedef std::vector<Card> Pack;
@@ -34,9 +35,9 @@ char p[13] = {
 	'S'
 };
 
-Card translate(std::string c) {
+Card translate(char colC, char powC) {
 	int col, pow;
-	switch (c[0]) {
+	switch (colC) {
 	case 'S':
 		col = 0;
 		break;
@@ -53,7 +54,7 @@ Card translate(std::string c) {
 		col = -1;
 	}
 
-	switch (c[1]) {
+	switch (powC) {
 	case '2':
 		pow = 0;
 		break;
@@ -181,7 +182,7 @@ void showCards(const Hand &h) {
 	}
 }
 bool playable(Hand h, Card c) {
-	return find(h[0], h[12], c) != *h.end();
+	return find(std::begin(h), std::end(h), c) != std::end(h);
 }
 
 std::array<Hand, 4> deal() {
@@ -218,26 +219,41 @@ std::array<Hand, 4> deal() {
 int main() {
 	std::array<Hand, 4> hands = deal();
 	std::string command; //commande play, pour jouer son tour
-	std::string card;	//carte du joueur
-	Card cardT;
-	
+	char col, pow;	//carte du joueur
+	Card cardT, defcard = { -1, -1 };
+	int j;
 	bool verify = 1;
-	while (verify) {//lecture de la commande et affectation aux variables
-		std::getline(std::cin, command);
-		
-		if (command == "stop") {
-			std::cout << "Stopping program" << std::endl;
-			return(0);
-		}
+	for (int i = 0; i < 4; i++) {
+		showCards(hands[i]);
 
-		else if (command == "play") {
-			std::cout << "Enter card" << std::endl;
-			std::getline(std::cin, card);
-			cardT = translate(card);
-			verify = 0;
+		while (true) {//lecture de la commande et affectation aux variables
+			std::cout << "Enter command" << std::endl;
+			std::getline(std::cin, command);
+			if (command == "stop") {
+				std::cout << "Stopping program" << std::endl;
+				return(0);
+			}
+
+			else if (command == "play") {
+				std::cout << "Enter card" << std::endl;
+				std::cin >> col >> pow;
+				cardT = translate(col, pow);
+				if (cardT == defcard) {
+					std::cout << "The card you entered isn't existing or isn't in your hand" << std::endl;
+				}
+				else if (cardT != defcard && playable(hands[i], cardT)) {
+					break;
+				}
+			}
+			else if (command == "help" || command == "?") {
+				std::cout << "Type /play to play, then enter your card value (colour then power)\n";
+				std::cout << "Type /stop to stop the program\n";
+				std::cout << "Type /showhand to see your hand\n";
+				std::cout << "Type /help to see all the commands\n";
+			}
+
 		}
 	}
-	
 	system("PAUSE");
 	return 0;
 }
