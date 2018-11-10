@@ -142,6 +142,13 @@ std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>:
 	return end;
 }
 
+std::vector<char>::iterator find(std::vector<char>::iterator start, std::vector<char>::iterator end, const Card& value) {
+	for (; start != end; ++start) {
+		if (*start == value) return start;
+	}
+	return end;
+}
+
 void showCards(const Hand &h) {
 	//Adapte l'affichage (classe les cartes par ordre de puissance) et affiche
 	std::list<char> c[4];
@@ -171,6 +178,9 @@ void showCards(const Hand &h) {
 		}
 		std::cout << std::endl;
 	}
+}
+bool playable(Hand h, Card c) {
+	return find(h[0], h[12], c) != h.end();
 }
 
 std::array<Hand, 4> deal() {
