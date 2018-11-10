@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 #include <array>
+#include <string>
 
 typedef std::array<int, 2> Card;
 typedef std::vector<Card> Pack;
@@ -51,7 +52,7 @@ Card translate(std::string c) {
 	default:
 		col = -1;
 	}
-	
+
 	switch (c[1]) {
 	case '2':
 		pow = 0;
@@ -96,7 +97,7 @@ Card translate(std::string c) {
 		pow = -1;
 	}
 
-	return {col, pow};
+	return { col, pow };
 }
 
 Card compare(int color, int contract, Card const& a, Card const& b) {
@@ -216,6 +217,26 @@ std::array<Hand, 4> deal() {
 
 int main() {
 	std::array<Hand, 4> hands = deal();
+	std::string command; //commande play, pour jouer son tour
+	std::string card;	//carte du joueur
+	
+	bool verify = 1;
+	while (verify) {//lecture de la commande et affectation aux variables
+		std::getline(std::cin, command);
+
+		if (command == "stop") {
+			std::cout << "Stopping program" << std::endl;
+			return(0);
+		}
+
+		else if (command == "play") {
+			std::cout << "Enter card" << std::endl;
+			std::getline(std::cin, card);
+
+			verify = 0;
+		}
+	}
+	
 	std::cout << "joueur 1" << std::endl << std::endl;
 	showCards(hands[2]);
 	std::cout << std::endl;
