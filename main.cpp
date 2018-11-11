@@ -5,7 +5,6 @@
 #include <list>
 #include <array>
 #include <string>
-#include <stdio.h>
 #include <sstream>
 
 typedef std::array<int, 2> Card;
@@ -207,8 +206,19 @@ void showCards(const Hand &h) {
 		std::cout << std::endl;
 	}
 }
-bool playable(Hand h, Card c) {
-	return find(std::begin(h), std::end(h), c) != std::end(h);
+bool playable(int color, Hand h, Card c) {
+	if (find(std::begin(h), std::end(h), c) != std::end(h)) {
+		if (c[0] == color) return true;
+		else {
+			for (int i = 0; i < 13; i++) {
+				Card d = { c[0], i };
+				if (find(std::begin(h), std::end(h), d) != std::end(h)) return false;
+			}
+			return true;
+		}
+	}
+
+	return false;
 }
 
 std::array<Hand, 4> deal() {
@@ -249,7 +259,7 @@ int main() {
 	char col, pow;	//carte du joueur
 	Card cardT, defcard = { -1, -1 }, w;
 	std::array<Card, 4> playedCards;
-	int color, contract = 0, turn = 3, fp = turn;
+	int color, contract = -1, turn = 3, fp = turn;
 	Winner winner;
 	std::array<std::string, 4> players = { "North", "East", "South", "West" };
 	bool verify = 1;
@@ -263,9 +273,9 @@ int main() {
 
 			do {//lecture de la commande et affectation aux variables
 				std::cout << "Enter command" << std::endl;
+				std::cin.clear();
 				std::getline(std::cin, command);
 				if (command == "stop") {
-					std::cout << "Stopping program" << std::endl;
 					return(0);
 				}
 
@@ -273,34 +283,36 @@ int main() {
 					std::cout << "Enter card" << std::endl;
 					std::cin >> col >> pow;
 					std::cin.ignore();
-
 					cardT = translate(col, pow);
-					if (cardT == defcard || !playable(hands[turn], cardT)) {
-						std::cout << "The card you entered isn't existing or isn't in your hand" << std::endl;
-					}
-					else if (cardT != defcard && playable(hands[turn], cardT)) {
+
+					if (cardT == defcard) std::cout << "The card you entered isn't existing" << std::endl;
+					else {
 						playedCards[turn] = cardT;
-						hands[turn].erase(find(std::begin(hands[turn]), std::end(hands[turn]), cardT));
-						verify = 0;
+						if(i == 0) color = playedCards[turn][0];
+						if (!playable(color, hands[turn], cardT)) std::cout << "The card you entered isn't in your hand, or you can't discard" << std::endl;
+						else {
+							verify = 0;
+							hands[turn].erase(find(std::begin(hands[turn]), std::end(hands[turn]), cardT));
+						}
 					}
 				}
 				else if (command == "contract") {
 					std::string c;
 
 					switch (contract) {
-					case 0:
+					case -1:
 						c = "Notrump";
 						break;
-					case 1:
+					case 0:
 						c = "Spades";
 						break;
-					case 2:
+					case 1:
 						c = "Heart";
 						break;
-					case 3:
+					case 2:
 						c = "Diamond";
 						break;
-					case 4:
+					case 3:
 						c = "Club";
 						break;
 					}
@@ -313,12 +325,15 @@ int main() {
 						std::cout << players[jp] << " : " << translate(playedCards[jp]) << std::endl;
 					}
 				}
+				else if (command == "score")
+					std::cout << "Team North/South : " << score[0] << std::endl << "Team East/West : " << score[1] << std::endl;
 				else if (command == "help" || command == "?") {
-					std::cout << "Type /play to play, then enter your card value (colour then power)\n";
-					std::cout << "Type /stop to stop the program\n";
-					std::cout << "Type /contract to see the current contract\n";
-					std::cout << "Type /game to see the cards played by the others\n";
-					std::cout << "Type /help to see all the commands\n";
+					std::cout << "Type play to play, then enter your card value (colour then power)\n";
+					std::cout << "Type stop to stop the program\n";
+					std::cout << "Type contract to see the current contract\n";
+					std::cout << "Type score to see the current score\n";
+					std::cout << "Type game to see the cards played by the others\n";
+					std::cout << "Type help to see all the commands\n";
 				}
 			} while (verify);
 			verify = 1;
@@ -327,16 +342,15 @@ int main() {
 			if (i == 0) {
 				winner.c = playedCards[turn];
 				winner.id = turn;
-				color = playedCards[turn][0];
 			}
 			else {
-				w = compare(color, contract, winner.c, playedCards[i]);
+				w = compare(color, contract, winner.c, playedCards[turn]);
 				if (w != winner.c) winner.id = turn;
 				winner.c = w;
 
 				if (i == 3) {
 					++score[winner.id % 2];
-					turn = winner.id;
+					turn = winner.id - 1;
 					fp = turn;
 					for (int j = 0; j < 4; ++j) playedCards[j] = defcard;
 				}
