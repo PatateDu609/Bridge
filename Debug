@@ -265,7 +265,6 @@ int main() {
 				std::cout << "Enter command" << std::endl;
 				std::getline(std::cin, command);
 				if (command == "stop") {
-					std::cout << "Stopping program" << std::endl;
 					return(0);
 				}
 
@@ -314,11 +313,11 @@ int main() {
 					}
 				}
 				else if (command == "help" || command == "?") {
-					std::cout << "Type /play to play, then enter your card value (colour then power)\n";
-					std::cout << "Type /stop to stop the program\n";
-					std::cout << "Type /contract to see the current contract\n";
-					std::cout << "Type /game to see the cards played by the others\n";
-					std::cout << "Type /help to see all the commands\n";
+					std::cout << "Type play to play, then enter your card value (colour then power)\n";
+					std::cout << "Type stop to stop the program\n";
+					std::cout << "Type contract to see the current contract\n";
+					std::cout << "Type game to see the cards played by the others\n";
+					std::cout << "Type help to see all the commands\n";
 				}
 			} while (verify);
 			verify = 1;
