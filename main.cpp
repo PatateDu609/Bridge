@@ -18,10 +18,10 @@ struct Winner {
 
 //Définition cartes
 char color[4] = {
-		'S',
-		'H',
-		'D',
-		'C'
+	'S',
+	'H',
+	'D',
+	'C'
 };
 
 char p[13] = {
@@ -252,14 +252,13 @@ std::array<Hand, 4> deal() {
 	return hands;
 }
 
-
 int main() {
 	std::array<Hand, 4> hands = deal();
 	std::string command; //commande play, pour jouer son tour
 	char col, pow;	//carte du joueur
 	Card cardT, defcard = { -1, -1 }, w;
 	std::array<Card, 4> playedCards;
-	int color, contract = -1, turn = 3, fp = turn;
+	int color, contract = -1, turn = 2, fp = turn;
 	Winner winner;
 	std::array<std::string, 4> players = { "North", "East", "South", "West" };
 	bool verify = 1;
@@ -275,11 +274,10 @@ int main() {
 				std::cout << "Enter command" << std::endl;
 				std::cin.clear();
 				std::getline(std::cin, command);
-				if (command == "stop") {
+				if (command == "stop" || command == "s") {
 					return(0);
 				}
-
-				else if (command == "play") {
+				else if (command == "play" || command == "p") {
 					std::cout << "Enter card" << std::endl;
 					std::cin >> col >> pow;
 					std::cin.ignore();
@@ -356,7 +354,13 @@ int main() {
 				}
 			}
 		}
+
+		if(l == 12) {
+			std::cout << std::endl << std::endl << std::endl << "Winner : ";
+			if(score[0] > score[1]) std::cout << "Team North/South";
+			else std::cout << "Team East/West";
+			std::cout << std::endl;
+		}
 	}
-	system("PAUSE");
 	return 0;
 }
