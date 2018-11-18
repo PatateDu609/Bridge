@@ -18,10 +18,10 @@ struct Winner {
 
 //Définition cartes
 char color[4] = {
-	'S',
-	'H',
-	'D',
-	'C'
+		'S',
+		'H',
+		'D',
+		'C'
 };
 
 char p[13] = {
@@ -58,6 +58,26 @@ std::string translate(Card c) {
 		cardStream << p[c[1]];
 	}
 	return cardStream.str();
+}
+
+bool isCard(std::string test) {
+	bool col = 0, pow = 0;
+	char powC = test[1], colC = test[0];
+	switch (colC) {
+	case 'S': case 'H': case 'D': case 'C':
+		col = 1;
+		break;
+	}
+
+	switch (powC) {
+	case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': case '1': case 'J': case 'Q': case 'K': case 'A':
+		pow = 1;
+		break;
+	}
+
+	if (pow && col) return true;
+	
+	return false;
 }
 
 Card translate(char colC, char powC) {
@@ -169,13 +189,6 @@ std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>:
 	return end;
 }
 
-std::vector<Card>::iterator find(std::vector<Card>::iterator start, std::vector<Card>::iterator end, const Card& value) {
-	for (; start != end; ++start) {
-		if (*start == value) return start;
-	}
-	return end;
-}
-
 void showCards(const Hand &h) {
 	//Adapte l'affichage (classe les cartes par ordre de puissance) et affiche
 	std::list<char> c[4];
@@ -210,10 +223,9 @@ bool playable(int color, Hand h, Card c) {
 	if (find(std::begin(h), std::end(h), c) != std::end(h)) {
 		if (c[0] == color) return true;
 		else {
-			for (int i = 0; i < 13; i++) {
-				Card d = { c[0], i };
-				if (find(std::begin(h), std::end(h), d) != std::end(h)) return false;
-			}
+			std::cout << "Tentative de se defausser" << std::endl;
+			for (int i = 0; i < h.size(); i++) if (h[i][0] == color) return false;
+
 			return true;
 		}
 	}
@@ -252,19 +264,31 @@ std::array<Hand, 4> deal() {
 	return hands;
 }
 
+void help() {
+	std::cout << "Type play to play, then enter your card value (colour then power)\n";
+	std::cout << "Type stop to stop the program\n";
+	std::cout << "Type contract to see the current contract\n";
+	std::cout << "Type score to see the current score\n";
+	std::cout << "Type game to see the cards played by the others\n";
+	std::cout << "Type show to see the hand in argument (ex : show n or show north to see the north's hand).\n";
+	std::cout << std::endl;
+}
+
 int main() {
 	std::array<Hand, 4> hands = deal();
 	std::string command; //commande play, pour jouer son tour
 	char col, pow;	//carte du joueur
 	Card cardT, defcard = { -1, -1 }, w;
 	std::array<Card, 4> playedCards;
-	int color, contract = -1, turn = 2, fp = turn;
+	int color, contract = -1, turn = 3, fp = turn;
 	Winner winner;
 	std::array<std::string, 4> players = { "North", "East", "South", "West" };
-	bool verify = 1;
 	std::array<int, 2> score = { 0, 0 };
 
+	std::cout << "BRIDGE" << std::endl << std::endl << std::endl;
+
 	for (int l = 0; l < 13; l++) {
+		help();
 		for (int i = 0; i < 4; i++, ++turn) {
 			turn %= 4;
 			std::cout << players[turn] << " plays" << std::endl;
@@ -272,27 +296,9 @@ int main() {
 
 			do {//lecture de la commande et affectation aux variables
 				std::cout << "Enter command" << std::endl;
-				std::cin.clear();
 				std::getline(std::cin, command);
-				if (command == "stop" || command == "s") {
+				if (command == "stop") {
 					return(0);
-				}
-				else if (command == "play" || command == "p") {
-					std::cout << "Enter card" << std::endl;
-					std::cin >> col >> pow;
-					std::cin.ignore();
-					cardT = translate(col, pow);
-
-					if (cardT == defcard) std::cout << "The card you entered isn't existing" << std::endl;
-					else {
-						playedCards[turn] = cardT;
-						if(i == 0) color = playedCards[turn][0];
-						if (!playable(color, hands[turn], cardT)) std::cout << "The card you entered isn't in your hand, or you can't discard" << std::endl;
-						else {
-							verify = 0;
-							hands[turn].erase(find(std::begin(hands[turn]), std::end(hands[turn]), cardT));
-						}
-					}
 				}
 				else if (command == "contract") {
 					std::string c;
@@ -325,16 +331,50 @@ int main() {
 				}
 				else if (command == "score")
 					std::cout << "Team North/South : " << score[0] << std::endl << "Team East/West : " << score[1] << std::endl;
-				else if (command == "help" || command == "?") {
-					std::cout << "Type play to play, then enter your card value (colour then power)\n";
-					std::cout << "Type stop to stop the program\n";
-					std::cout << "Type contract to see the current contract\n";
-					std::cout << "Type score to see the current score\n";
-					std::cout << "Type game to see the cards played by the others\n";
-					std::cout << "Type help to see all the commands\n";
+				else if (command.find("show") != std::string::npos) {
+					std::istringstream s(command);
+					std::string b, c;
+					s >> b >> c;
+					switch (c[0]) {
+					case 'n': case 'N':
+						showCards(hands[0]);
+						break;
+					case 'e': case 'E':
+						showCards(hands[1]);
+						break;
+					case 's': case 'S':
+						showCards(hands[2]);
+						break;
+					case 'w': case 'W':
+						showCards(hands[3]);
+						break;
+					default:
+						showCards(hands[turn]);
+					}
 				}
-			} while (verify);
-			verify = 1;
+				else {
+					if (isCard(command)) {
+						col = command[0];
+						pow = command[1];
+						cardT = translate(col, pow);
+
+						if (cardT == defcard) std::cout << "The card you entered isn't existing" << std::endl;
+						else {
+							playedCards[turn] = cardT;
+							if (i == 0) color = playedCards[turn][0];
+							if (!playable(color, hands[turn], cardT)) std::cout << "The card you entered isn't in your hand, or you can't discard" << std::endl;
+							else {
+								hands[turn].erase(find(std::begin(hands[turn]), std::end(hands[turn]), cardT));
+								break;
+							}
+						}
+					}
+
+					std::cout << std::endl;
+					std::cout << players[turn] << " plays" << std::endl;
+					showCards(hands[turn]);
+				}
+			} while (true);
 
 			// Comparaison des cartes et détermine le vainqueur du pli
 			if (i == 0) {
@@ -348,19 +388,14 @@ int main() {
 
 				if (i == 3) {
 					++score[winner.id % 2];
-					turn = winner.id - 1;
-					fp = turn;
+					turn = winner.id;
+					fp = turn + 1;
 					for (int j = 0; j < 4; ++j) playedCards[j] = defcard;
 				}
 			}
-		}
-
-		if(l == 12) {
-			std::cout << std::endl << std::endl << std::endl << "Winner : ";
-			if(score[0] > score[1]) std::cout << "Team North/South";
-			else std::cout << "Team East/West";
 			std::cout << std::endl;
 		}
 	}
+	system("PAUSE");
 	return 0;
 }
