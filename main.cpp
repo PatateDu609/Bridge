@@ -154,31 +154,12 @@ Card compare(int color, int contract, Card const& a, Card const& b) {
 		acontract = (a[0] == contract),
 		bcontract = (b[0] == contract);
 
-	if (x == 0 && ac) {
-		if (a[1] == 0 || b[1] == 0) { //règle le cas de l'as
-			if (a[1] == 0) c = a;
-			if (b[1] == 0) c = b;
-		}
-		else c = (y > 0) ? a : b;
-	}
-	else if (bc && !ac) {
-		if (!acontract) c = b;
-		else c = a;
-	}
+	if (x == 0) c = (y > 0) ? a : b;
+	else if (bc && !ac) c = a;
 	else if (ac && !bc) {
-		if (!bcontract) c = a;
-		else c = b;
+		if (!bcontract) c = a; // B se défausse
+		else c = b; // B coupe
 	}
-	else if (x == 0 && !ac) {
-		if (acontract) {
-			if (a[1] == 0 || b[1] == 0) { //règle le cas de l'as
-				if (a[1] == 0) c = a;
-				if (b[1] == 0) c = b;
-			}
-			else c = (y > 0) ? a : b;
-		}
-	}
-
 	return c;
 }
 
@@ -388,8 +369,8 @@ int main() {
 
 				if (i == 3) {
 					++score[winner.id % 2];
-					turn = winner.id;
-					fp = turn + 1;
+					turn = winner.id - 1;
+					fp = turn + 2;
 					for (int j = 0; j < 4; ++j) playedCards[j] = defcard;
 				}
 			}
