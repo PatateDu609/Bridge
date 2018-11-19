@@ -76,7 +76,7 @@ bool isCard(std::string test) {
 	}
 
 	if (pow && col) return true;
-	
+
 	return false;
 }
 
@@ -164,6 +164,13 @@ Card compare(int color, int contract, Card const& a, Card const& b) {
 }
 
 std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>::iterator end, const char& value) {
+	for (; start != end; ++start) {
+		if (*start == value) return start;
+	}
+	return end;
+}
+
+std::vector<Card>::iterator find(std::vector<Card>::iterator start, std::vector<Card>::iterator end, const Card& value) {
 	for (; start != end; ++start) {
 		if (*start == value) return start;
 	}
@@ -377,6 +384,5 @@ int main() {
 			std::cout << std::endl;
 		}
 	}
-	system("PAUSE");
 	return 0;
 }
