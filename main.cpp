@@ -10,24 +10,19 @@
 typedef std::array<int, 2> Card;
 typedef std::vector<Card> Pack;
 typedef std::vector<Card> Hand;
-typedef std::array<int, 3> Contract;
 
 struct Winner {
 	Card c;
 	int id;
 };
 
-struct Bidding {
-	Contract c;
-	bool pass;
-};
-
 //Définition cartes
-char color[4] = {
+char color[5] = {
 		'S',
 		'H',
 		'D',
-		'C'
+		'C',
+		'N'
 };
 
 char p[13] = {
@@ -45,50 +40,6 @@ char p[13] = {
 	'R',
 	'S'
 };
-
-std::array<std::string, 4> players = {
-	"North",
-	"East",
-	"South",
-	"West"
-};
-
-bool isCard(std::string test) {
-	bool col = 0, pow = 0;
-	char powC = test[1], colC = test[0];
-	switch (colC) {
-	case 'S': case 'H': case 'D': case 'C':
-		col = 1;
-		break;
-	}
-
-	switch (powC) {
-	case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': case '1': case 'J': case 'Q': case 'K': case 'A':
-		pow = 1;
-		break;
-	}
-
-	if (pow && col) return true;
-	
-	return false;
-}
-
-bool isContract(std::string test) {
-	bool contract = 0, lvl = 0;
-	char contractC = test[0], lvlC = test[test.size()-1];
-	
-	switch (contractC) {
-	case 'S': case 'H': case 'D': case 'C': case 'N':
-		contract = 1;
-		break;
-	}
-	
-	if((int) lvlC < '8' && (int) lvlC > '0') lvl = 1;
-	
-	if(lvl && contract) return true;
-	
-	return false;
-}
 
 std::string translate(Card c) {
 	std::ostringstream cardStream;
@@ -108,6 +59,26 @@ std::string translate(Card c) {
 		cardStream << p[c[1]];
 	}
 	return cardStream.str();
+}
+
+bool isCard(std::string test) {
+	bool col = 0, pow = 0;
+	char powC = test[1], colC = test[0];
+	switch (colC) {
+	case 'S': case 'H': case 'D': case 'C':
+		col = 1;
+		break;
+	}
+
+	switch (powC) {
+	case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': case '1': case 'J': case 'Q': case 'K': case 'A':
+		pow = 1;
+		break;
+	}
+
+	if (pow && col) return true;
+
+	return false;
 }
 
 Card translate(char colC, char powC) {
@@ -176,67 +147,6 @@ Card translate(char colC, char powC) {
 	return { col, pow };
 }
 
-std::string translateC(Contract c) {
-	std::ostringstream oss;
-	switch(c[0]) {
-	case -1:
-		oss << "NT";
-	default:
-		oss << color[c[0]];
-	}
-	
-	oss << c[1] << players[c[2]][0];
-	return oss.str();
-}
-
-Contract translateC(std::string command, int owner) {
-	Contract c;
-	c[2] = owner;
-	switch(command[0]) {
-	case 'N':
-		c[0] = -1;
-		break;	
-	case 'S':
-		c[0] = 0;
-		break;	
-	case 'H':
-		c[0] = 1;
-		break;	
-	case 'D':
-		c[0] = 2;
-		break;	
-	case 'C':
-		c[0] = 3;
-		break;	
-	}
-	
-	switch(command[command.size() - 1]) {
-	case '1':
-		c[1] = 1;
-		break;
-	case '2':
-		c[1] = 2;
-		break;
-	case '3':
-		c[1] = 3;
-		break;
-	case '4':
-		c[1] = 4;
-		break;
-	case '5':
-		c[1] = 5;
-		break;
-	case '6':
-		c[1] = 6;
-		break;
-	case '7':
-		c[1] = 7;
-		break;
-	}
-	
-	return c;
-}
-
 Card compare(int color, int contract, Card const& a, Card const& b) {
 	Card c;
 	int x = a[0] - b[0], y = a[1] - b[1];
@@ -252,20 +162,6 @@ Card compare(int color, int contract, Card const& a, Card const& b) {
 		else c = b; // B coupe
 	}
 	return c;
-}
-
-Contract compareC (Contract const& a, Contract const& b) {
-	int y = a[1] - b[1];
-	Contract c;
-	if (y == 0) {
-		if (a[0] == -1 && b[0] != -1) c = a;
-		else if (a[0] != -1 && b[0] == -1) c = b;
-		else if (a[0] == b[0]) c = { -10, -10, -10 };
-		else if (a[0] < b[0]) c = b;
-		else c = { -10, -10, -10 };
-	}
-	else if (y > 0) c = { -10, -10, -10 };
-	else c = b;
 }
 
 std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>::iterator end, const char& value) {
@@ -312,6 +208,7 @@ void showCards(const Hand &h) {
 		std::cout << std::endl;
 	}
 }
+
 bool playable(int color, Hand h, Card c) {
 	if (find(std::begin(h), std::end(h), c) != std::end(h)) {
 		if (c[0] == color) return true;
@@ -369,66 +266,17 @@ void help() {
 
 int main() {
 	std::array<Hand, 4> hands = deal();
-	std::string command;
+	std::string command; //commande play, pour jouer son tour
 	char col, pow;	//carte du joueur
 	Card cardT, defcard = { -1, -1 }, w;
 	std::array<Card, 4> playedCards;
-	int color, contract = -1, turn = 0, fp = turn;
+	int color, contract = -1, turn = 2, fp = turn;
 	Winner winner;
+	std::array<std::string, 4> players = { "North", "East", "South", "West" };
 	std::array<int, 2> score = { 0, 0 };
 
 	std::cout << "BRIDGE" << std::endl << std::endl << std::endl;
-	
-	std::array<Bidding, 4> actions;
-	int nbPass;
-	bool biddingDone, biddingTurn = false, ctr = false;
-	Contract c;
-	//init actions
-	for(int i = 0; i < 4; i++) {
-		actions[i].c[0] = -2;
-		actions[i].c[1] = -1;
-		actions[i].c[2] = i;
-		actions[i].pass = 0;
-	}
-	
-	std::cout << "Bidding" << std::endl << std::endl;
-	do {
-		for(int i = 0; i < 4; i++, ++turn) {
-			turn %= 4;
-			std::cout << players[turn] << " plays" << std::endl;
-			showCards(hands[turn]);
-			
-			do {
-				std::cout << "Enter command" << std::endl;
-				std::getline(std::cin, command);
-				if (command == "stop") {
-					return(0);
-				}
-				else if (command == "pass") {
-					biddingTurn = true;
-					++nbPass;
-				}
-				else if (isContract(command)) {
-					c = translateC(command, turn);
-					if(i == 0 || !ctr) actions[i].c = c;
-					else {
-						ctr = 1;
-						actions[i].c = compareC(actions[i].c, c);
-					}
-					
-					std::cout << actions[i].c[0] << std::endl;
-					biddingTurn = true;
-				}
-				else {
-					std::cout << std::endl;
-					std::cout << players[turn] << " plays" << std::endl;
-					showCards(hands[turn]);
-				}
-			} while(!biddingTurn);
-		}
-	} while(!biddingDone);
-	
-	std::cout << "Game with <contract>" << std::endl << std::endl;
+
 	for (int l = 0; l < 13; l++) {
 		help();
 		for (int i = 0; i < 4; i++, ++turn) {
@@ -494,23 +342,24 @@ int main() {
 						showCards(hands[turn]);
 					}
 				}
-				else if (isCard(command)) {
-					col = command[0];
-					pow = command[1];
-					cardT = translate(col, pow);
+				else {
+					if (isCard(command)) {
+						col = command[0];
+						pow = command[1];
+						cardT = translate(col, pow);
 
-					if (cardT == defcard) std::cout << "The card you entered isn't existing" << std::endl;
-					else {
-						playedCards[turn] = cardT;
-						if (i == 0) color = playedCards[turn][0];
-						if (!playable(color, hands[turn], cardT)) std::cout << "The card you entered isn't in your hand, or you can't discard" << std::endl;
+						if (cardT == defcard) std::cout << "The card you entered isn't existing" << std::endl;
 						else {
-							hands[turn].erase(find(std::begin(hands[turn]), std::end(hands[turn]), cardT));
-							break;
+							playedCards[turn] = cardT;
+							if (i == 0) color = playedCards[turn][0];
+							if (!playable(color, hands[turn], cardT)) std::cout << "The card you entered isn't in your hand, or you can't discard" << std::endl;
+							else {
+								hands[turn].erase(find(std::begin(hands[turn]), std::end(hands[turn]), cardT));
+								break;
+							}
 						}
 					}
-				}
-				else {
+
 					std::cout << std::endl;
 					std::cout << players[turn] << " plays" << std::endl;
 					showCards(hands[turn]);
