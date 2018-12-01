@@ -176,6 +176,7 @@ std::string translateC(Contract c, bool owner = true) {
 	switch(c[0]) {
 	case -1:
 		oss << "NT";
+		break;
 	default:
 		oss << color[c[0]];
 	}
@@ -323,9 +324,7 @@ bool playable(int color, Hand h, Card c) {
 	if (find(std::begin(h), std::end(h), c) != std::end(h)) {
 		if (c[0] == color) return true;
 		else {
-			std::cout << "Tentative de se defausser" << std::endl;
 			for (int i = 0; i < h.size(); i++) if (h[i][0] == color) return false;
-
 			return true;
 		}
 	}
@@ -364,13 +363,21 @@ std::array<Hand, 4> deal() {
 	return hands;
 }
 
-void help() {
-	std::cout << "Type play to play, then enter your card value (colour then power)\n";
-	std::cout << "Type stop to stop the program\n";
-	std::cout << "Type contract to see the current contract\n";
-	std::cout << "Type score to see the current score\n";
-	std::cout << "Type game to see the cards played by the others\n";
+void help(int w) {
+	if (w == 0) {
+		std::cout << "Enter your card value (colour then level) to end your turn\n";
+		std::cout << "Type game to see the cards played by the others\n";
+		std::cout << "Type contract to see the current contract\n";
+		std::cout << "Type score to see the current score\n";
+	}
+	else if(w == 1){
+		std::cout << "Enter your contract (color then tricks) to end your turn\n";
+		std::cout << "Type winner to see what is the current best contract\n";
+		std::cout << "Type pass to end your turn without choosing a contract\n";
+	}
+
 	std::cout << "Type show to see the hand in argument (ex : show n or show north to see the north's hand).\n";
+	std::cout << "Type stop to stop the program\n";
 	std::cout << std::endl;
 }
 
@@ -380,39 +387,29 @@ int main() {
 	char col, pow;	//carte du joueur
 	Card cardT, defcard = { -1, -1 }, w;
 	std::array<Card, 4> playedCards;
-	int color, contract = -1, turn = 0, fp = turn;
+	int color, turn = 1, fp = turn, nbPass = 0, b = 0;
+	bool ctr = false;
 	Winner winner;
 	std::array<int, 2> score = { 0, 0 };
+	Contract c, win, temp, def = { -10, -10, -10 };
 
 	std::cout << "BRIDGE" << std::endl << std::endl << std::endl;
-	
-	std::array<int, 4> actions;
-	int nbPass = 0, b = 0;
-	bool biddingDone, ctr = false;
-	Contract c, win, temp, def = { -10, -10, -10 };
-	//init actions
-	for(int i = 0; i < 4; i++) {
-		actions[i] = -1;
-	}
 	
 	std::cout << "Bidding" << std::endl << std::endl;
 	do {
 		for(int i = 0; i < 4; i++, ++turn, ++b) {
 			turn %= 4;
+			help(1);
 			std::cout << players[turn] << " plays" << std::endl;
 			showCards(hands[turn]);
 			
 			do {
 				std::cout << "Enter command" << std::endl;
 				std::getline(std::cin, command);
-				if (command == "stop") {
-					return(0);
-				}
+				if (command == "stop") return(0);
 				else if (command == "pass") {
 					++nbPass;
-					nbPass %= 5;
-					actions[turn] = 0;
-					std::cout << "pass : " << nbPass << std::endl;
+					if ((nbPass == 3 && ctr)) goto game;
 					break;
 				}
 				else if (command == "winner" && b > 0) {
@@ -441,15 +438,17 @@ int main() {
 				}
 				else if (isContract(command)) {
 					c = translateC(command, turn);
+					if (command == "NT7") {
+						win = c;
+						goto game;
+					}
 					if (!ctr) {
-						actions[turn] = 1;
 						win = c;
 						ctr = 1;
 						nbPass = 0;
 						break;
 					}
 					else {
-						actions[turn] = 1;
 						temp = compareC(win, c);
 						if (temp != def) {
 							if (win != temp) {
@@ -460,15 +459,26 @@ int main() {
 						}
 					}
 				}
+				else {
+					std::cout << std::endl;
+					std::cout << players[turn] << " plays" << std::endl;
+					showCards(hands[turn]);
+				}
 			} while(true);
 		}
-		if (nbPass == 3) biddingDone = true;
-		else biddingDone = false;
-	} while(!biddingDone);
+
+		if (nbPass == 4 && !ctr) {
+			std::cout << std::endl << std::endl << std::endl << "no one has played, the cards will be dealt again" << std::endl << std::endl;
+			hands = deal();
+			nbPass = 0;
+		}
+	} while(true);
 	
-	std::cout << std::endl << std::endl << "Game with " << translateC(win, false) << std::endl << std::endl;
+	game:
+
+	std::cout << std::endl << std::endl << "Game with " << translateC(win) << std::endl << std::endl;
 	for (int l = 0; l < 13; l++) {
-		help();
+		help(0);
 		for (int i = 0; i < 4; i++, ++turn) {
 			turn %= 4;
 			std::cout << players[turn] << " plays" << std::endl;
@@ -481,30 +491,10 @@ int main() {
 					return(0);
 				}
 				else if (command == "contract") {
-					std::string c;
-
-					switch (contract) {
-					case -1:
-						c = "Notrump";
-						break;
-					case 0:
-						c = "Spades";
-						break;
-					case 1:
-						c = "Heart";
-						break;
-					case 2:
-						c = "Diamond";
-						break;
-					case 3:
-						c = "Club";
-						break;
-					}
-
-					std::cout << c << std::endl;
+					std::cout << translateC(win) << std::endl;
 				}
 				else if (command == "game" && i > 0) {
-					for (int j = 0, jp = fp; j < i; j++, jp++) {
+					for (int j = 0, jp = fp - 1; j < i; j++, jp++) {
 						jp %= 4;
 						std::cout << players[jp] << " : " << translate(playedCards[jp]) << std::endl;
 					}
@@ -561,7 +551,7 @@ int main() {
 				winner.id = turn;
 			}
 			else {
-				w = compare(color, contract, winner.c, playedCards[turn]);
+				w = compare(color, win[0], winner.c, playedCards[turn]);
 				if (w != winner.c) winner.id = turn;
 				winner.c = w;
 
