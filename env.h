@@ -23,35 +23,11 @@ namespace env {
     	int id;
     };
 
-    char color[4] = {
-    		'S',
-    		'H',
-    		'D',
-    		'C'
-    };
+    extern char color[4];
 
-    char p[13] = {
-    	'2',
-    	'3',
-    	'4',
-    	'5',
-    	'6',
-    	'7',
-    	'8',
-    	'9',
-    	'I',
-    	'J',
-    	'Q',
-    	'R',
-    	'S'
-    };
+    extern char p[13];
 
-    std::array<std::string, 4> players = {
-    	"North",
-    	"East",
-    	"South",
-    	"West"
-    };
+	extern std::array<std::string, 4> players;
 }
 
 #endif

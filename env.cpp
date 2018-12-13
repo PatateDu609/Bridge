@@ -10,6 +10,36 @@
 typedef env::Card Card;
 typedef env::Hand Hand;
 
+char env::color[4] = {
+		'S',
+		'H',
+		'D',
+		'C'
+};
+
+std::array<std::string, 4> env::players = {
+	   "North",
+	   "East",
+	   "South",
+	   "West"
+};
+
+char env::p[13] = {
+		'2',
+		'3',
+		'4',
+		'5',
+		'6',
+		'7',
+		'8',
+		'9',
+		'I',
+		'J',
+		'Q',
+		'R',
+		'S'
+};
+
 void env::help(int w) {
 	if (w == 0) {
 		std::cout << "Enter your card value (colour then level) to end your turn\n";
@@ -45,7 +75,7 @@ std::vector<Card>::iterator env::find(std::vector<Card>::iterator start, std::ve
 }
 
 std::array<Hand, 4> env::deal() {
-	std::srand(std::time(0));
+	srand((unsigned int) time(NULL));
 	Pack pack, pack1;
 	std::array<Hand, 4> hands;
 	Card c;
@@ -79,7 +109,7 @@ std::string env::showCards(const Hand &h) {
 	//Adapte l'affichage (classe les cartes par ordre de puissance) et affiche
 	std::ostringstream oss;
 	std::list<char> c[4];
-	for (int i = 0; i < h.size(); i++) c[h[i][0]].push_back(p[h[i][1]]);
+	for (unsigned int i = 0; i < h.size(); i++) c[h[i][0]].push_back(p[h[i][1]]);
 
 	for (int i = 0; i < 4; i++) {
 		c[i].sort();
