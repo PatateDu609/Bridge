@@ -10,6 +10,7 @@
 typedef env::Card Card;
 typedef env::Hand Hand;
 
+//Tableau des couleurs des cartes
 char env::color[4] = {
 		'S',
 		'H',
@@ -17,6 +18,7 @@ char env::color[4] = {
 		'C'
 };
 
+//Tableau des emplacements des joueurs
 std::array<std::string, 4> env::players = {
 	   "North",
 	   "East",
@@ -24,6 +26,7 @@ std::array<std::string, 4> env::players = {
 	   "West"
 };
 
+//Tableau des puissances des cartes
 char env::p[13] = {
 		'2',
 		'3',
@@ -40,6 +43,7 @@ char env::p[13] = {
 		'S'
 };
 
+//Fonctionnement de la commande help 
 void env::help(int w) {
 	if (w == 0) {
 		std::cout << "Enter your card value (colour then level) to end your turn\n";
@@ -67,6 +71,7 @@ std::list<char>::iterator env::find(std::list<char>::iterator start, std::list<c
 	return end;
 }
 
+//Vérifie si une main contient une certaine carte
 std::vector<Card>::iterator env::find(std::vector<Card>::iterator start, std::vector<Card>::iterator end, const Card& value) {
 	for (; start != end; ++start) {
 		if (*start == value) return start;
@@ -74,6 +79,7 @@ std::vector<Card>::iterator env::find(std::vector<Card>::iterator start, std::ve
 	return end;
 }
 
+//Distribue les cartes
 std::array<Hand, 4> env::deal() {
 	srand((unsigned int) time(NULL));
 	Pack pack, pack1;
@@ -105,8 +111,8 @@ std::array<Hand, 4> env::deal() {
 	return hands;
 }
 
+//Adapte l'affichage (classe les cartes par ordre de puissance) et affiche
 std::string env::showCards(const Hand &h) {
-	//Adapte l'affichage (classe les cartes par ordre de puissance) et affiche
 	std::ostringstream oss;
 	std::list<char> c[4];
 	for (unsigned int i = 0; i < h.size(); i++) c[h[i][0]].push_back(p[h[i][1]]);
