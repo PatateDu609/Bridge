@@ -3,6 +3,7 @@
 #include <iostream>
 #include <array>
 
+//Lance la partie et affiche l'équipe gagnante
 int main() {
 	std::array<env::Hand, 4> hands = env::deal();
 
