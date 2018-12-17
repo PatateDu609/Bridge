@@ -28,6 +28,7 @@ bool bidding::isContract(std::string test) {
 	return false;
 }
 
+//Traduit un vecteur en string
 std::string bidding::translate(Contract& c, bool owner) {
 	std::ostringstream oss;
 	switch(c[0]) {
@@ -44,6 +45,7 @@ std::string bidding::translate(Contract& c, bool owner) {
 	return oss.str();
 }
 
+//Traduit un string en contrat
 Contract bidding::translate(std::string command, int owner) {
 	Contract c;
 	c[2] = owner;
@@ -91,6 +93,7 @@ Contract bidding::translate(std::string command, int owner) {
 
 	return c;
 }
+
 //Compare les contrats
 Contract bidding::compare(Contract const& a, Contract const& b) {
 	int x = a[0] - b[0], y = a[1] - b[1];
