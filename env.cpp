@@ -63,7 +63,7 @@ void env::help(int w) {
 }
 
 
-
+//Vérifie si une liste de caractères contient un certain caractère
 std::list<char>::iterator env::find(std::list<char>::iterator start, std::list<char>::iterator end, const char& value) {
 	for (; start != end; ++start) {
 		if (*start == value) return start;
