@@ -10,6 +10,7 @@ typedef env::Contract Contract;
 typedef env::Card Card;
 typedef bidding::BidResult BidResult;
 
+//Vérifie s'il y a un contrat
 bool bidding::isContract(std::string test) {
 	bool contract = 0, lvl = 0;
 	char contractC = test[0], lvlC = test[test.size()-1];
@@ -90,7 +91,7 @@ Contract bidding::translate(std::string command, int owner) {
 
 	return c;
 }
-
+//Compare les contrats
 Contract bidding::compare(Contract const& a, Contract const& b) {
 	int x = a[0] - b[0], y = a[1] - b[1];
 	Contract c, def = { -10, -10, -10 };
@@ -115,6 +116,7 @@ Contract bidding::compare(Contract const& a, Contract const& b) {
 	return c;
 }
 
+//Réalise les enchères jusqu'a un contrat valide
 BidResult bidding::doBidding(std::array<Hand, 4>& hands, int turn) {
 	Contract c, win, temp, def = { -10, -10, -10 };
 	std::string command;
@@ -194,7 +196,7 @@ BidResult bidding::doBidding(std::array<Hand, 4>& hands, int turn) {
 	} while (true);
 }
 
-
+//vérifier que la carte est valable
 bool game::isCard(std::string test) {
 	bool col = 0, pow = 0;
 	char powC = test[1], colC = test[0];
@@ -235,6 +237,7 @@ std::string game::translate(Card c) {
 	return cardStream.str();
 }
 
+//Traduit la couleur et la puissance d'une carte en une une paire de nombres  
 Card game::translate(char colC, char powC) {
 	int col, pow;
 	switch (colC) {
@@ -301,6 +304,7 @@ Card game::translate(char colC, char powC) {
 	return { col, pow };
 }
 
+//Compare deux cartes et retourne la gagnante en fonction du contrat et de la couleur
 Card game::compare(int color, int contract, Card const& a, Card const& b) {
 	Card c;
 	int x = a[0] - b[0], y = a[1] - b[1];
@@ -318,6 +322,7 @@ Card game::compare(int color, int contract, Card const& a, Card const& b) {
 	return c;
 }
 
+//Vérifie qu'une carte est jouable
 bool game::playable(int color, Hand &h, Card c) {
 	if (env::find(std::begin(h), std::end(h), c) != std::end(h)) {
 		if (c[0] == color) return true;
@@ -330,6 +335,7 @@ bool game::playable(int color, Hand &h, Card c) {
 	return false;
 }
 
+//Affichage des mains des joueurs
 std::string game::show(std::string command, std::array<Hand, 4> hands, int dead, bool open, int turn) {
 	std::ostringstream oss;
 	if(open) {
