@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <array>
+#include <ctime>
 
 typedef env::Hand Hand;
 typedef env::Contract Contract;
@@ -193,7 +194,7 @@ BidResult bidding::doBidding(std::array<Hand, 4>& hands, int turn) {
 
 		if (nbPass == 4 && !ctr) {
 			std::cout << std::endl << std::endl << std::endl << "no one has played, the cards will be dealt again" << std::endl << std::endl;
-			hands = env::deal();
+			hands = env::deal((unsigned int) time(0));
 			nbPass = 0;
 		}
 	} while (true);
@@ -386,6 +387,7 @@ int game::play(std::array<env::Hand, 4>& hands, bidding::BidResult& r) {
 	turn = r.turn;
 	dead = r.dead;
 	turn++;
+	turn %= 4;
 
 	std::cout << std::endl << std::endl << "Game with " << bidding::translate(win) << std::endl << std::endl;
 	for (int l = 0; l < 13; l++) {
@@ -394,7 +396,7 @@ int game::play(std::array<env::Hand, 4>& hands, bidding::BidResult& r) {
 			turn %= 4;
 
 			std::cout << env::players[turn] << " plays";
-			if (turn == dead) std::cout << " (played by " << env::players[dead - 2] << ")";
+			if (turn == dead) std::cout << " (played by " << env::players[(dead + 2) % 4] << ")";
 			std::cout << std::endl << env::showCards(hands[turn]);
 
 			do {//lecture de la commande et affectation aux variables

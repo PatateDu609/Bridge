@@ -80,8 +80,8 @@ std::vector<Card>::iterator env::find(std::vector<Card>::iterator start, std::ve
 }
 
 //Distribue les cartes
-std::array<Hand, 4> env::deal() {
-	srand((unsigned int) time(NULL));
+std::array<Hand, 4> env::deal(unsigned int seed) {
+	srand(seed);
 	Pack pack, pack1;
 	std::array<Hand, 4> hands;
 	Card c;

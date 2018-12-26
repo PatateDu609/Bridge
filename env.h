@@ -16,7 +16,7 @@ namespace env {
     std::list<char>::iterator find(std::list<char>::iterator start, std::list<char>::iterator end, const char& value);
     std::vector<Card>::iterator find(std::vector<Card>::iterator start, std::vector<Card>::iterator end, const Card& value);
     std::string showCards(const Hand &h);
-    std::array<Hand, 4> deal();
+    std::array<Hand, 4> deal(unsigned int);
 
     struct Winner {
     	Card c;
