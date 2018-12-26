@@ -10,13 +10,14 @@
 typedef env::Pack Pack;
 typedef env::Hand Hand;
 typedef env::Card Card;
+typedef game::Winner Winner;
 
 std::vector<Card> what(Hand h, int color) {
     std::vector<Card> possible;
-    for(int i = 0; i < h.size(); i++)
-        if(game::playable(color, h, h[i]))
-            possible.push_back(h[i]);
-
+	for (unsigned int i = 0; i < h.size(); i++) {
+		if (game::playable(color, h, h[i]))
+			possible.push_back(h[i]);
+	}
     return possible;
 }
 
@@ -26,23 +27,39 @@ int main() {
     srand((unsigned int) time(0));
     std::ofstream file("test");
 
+	Winner winner;
+	Card tmp;
+
     int color;
 
     if(file.is_open()) {
         file << seed << std::endl;
-        for(int j = 13; j > 0; j--) {
-            for(int i = 0; i < 4; i++) {
-                if(j == 13) {
+        for(int j = 13, turn = 0; j > 0; j--) {
+            for(int i = 0; i < 4; i++, turn++) {
+				turn %= 4;
+                if(i == 0) {
                     int d = rand() % j;
-                    color = hands[i][d][0];
-                    file << game::translate(hands[i][d]) << std::endl;
-                    hands[i].erase(hands[i].begin() + d);
+                    color = hands[turn][d][0];
+                    file << game::translate(hands[turn][d]) << std::endl;
+
+					winner.id = 0;
+					winner.c = hands[turn][d];
+
+					hands[turn].erase(hands[turn].begin() + d);
                 }
                 else {
-                    std::vector<Card> possible = what(hands[i], color);
+                    std::vector<Card> possible = what(hands[turn], color);
                     int d = rand() % possible.size();
-                    file << game::translate(hands[i][d]) << std::endl;
-                    hands[i].erase(hands[i].begin() + d);
+                    file << game::translate(possible[d]) << std::endl;
+					std::vector<Card>::iterator it = env::find(hands[turn].begin(), hands[turn].end(), possible[d]);
+					hands[turn].erase(it);
+
+					tmp = game::compare(color, -1, winner.c, possible[d]);
+					if (tmp == possible[d]) winner.id = turn;
+					winner.c = tmp;
+					if (i == 3) {
+						turn = winner.id - 1;
+					}
                 }
             }
         }
