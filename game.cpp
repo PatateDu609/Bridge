@@ -224,10 +224,18 @@ bool game::isCard(std::string test) {
 std::string game::translate(Card c) {
 	std::ostringstream cardStream;
 
-	cardStream << env::color[c[0]];
+	switch (c[0]) {
+	case -1:
+		cardStream << "NT";
+		break;
+	case 0: case 1: case 2: case 3:
+		cardStream << env::color[c[0]];
+		break;
+	}
+
 	switch (c[1]) {
 	case 8:
-		cardStream << "10";
+		cardStream << "T";
 		break;
 	case 11:
 		cardStream << "K";
@@ -373,7 +381,7 @@ int game::play(std::array<env::Hand, 4>& hands, bidding::BidResult& r) {
 	char col, pow;	//carte du joueur
 	Card cardT, defcard = { -1, -1 }, w;
 	std::array<Card, 4> playedCards;
-	int color, turn = 1, fp = turn, dead;
+	int color, turn, fp, dead;
 	Winner winner;
 	std::array<int, 2> score = { 0, 0 };
 	Contract win;
@@ -388,6 +396,7 @@ int game::play(std::array<env::Hand, 4>& hands, bidding::BidResult& r) {
 	dead = r.dead;
 	turn++;
 	turn %= 4;
+	fp = turn;
 
 	std::cout << std::endl << std::endl << "Game with " << bidding::translate(win) << std::endl << std::endl;
 	for (int l = 0; l < 13; l++) {
@@ -409,7 +418,7 @@ int game::play(std::array<env::Hand, 4>& hands, bidding::BidResult& r) {
 					std::cout << bidding::translate(win) << std::endl;
 				}
 				else if (command == "game" && i > 0) {
-					for (int j = 0, jp = fp - 1; j < i; j++, jp++) {
+					for (int j = 0, jp = fp; j < i; j++, jp++) {
 						jp %= 4;
 						std::cout << env::players[jp] << " : " << game::translate(playedCards[jp]) << std::endl;
 					}
@@ -454,12 +463,19 @@ int game::play(std::array<env::Hand, 4>& hands, bidding::BidResult& r) {
 				if (i == 3) {
 					++score[winner.id % 2];
 					turn = winner.id - 1;
-					fp = turn + 2;
+					fp = winner.id;
 					for (int j = 0; j < 4; ++j) playedCards[j] = defcard;
 				}
 			}
 			std::cout << std::endl;
 		}
 	}
+
+	if (win[1] >= 0) {
+		int i = win[2] % 2;
+		if (score[i] >= (win[1] + 6)) return i;
+		return !i;
+	}
+
 	return (score[0] > score[1]);
 }
