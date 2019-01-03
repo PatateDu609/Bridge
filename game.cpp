@@ -227,7 +227,7 @@ std::string game::translate(Card c) {
 	cardStream << env::color[c[0]];
 	switch (c[1]) {
 	case 8:
-		cardStream << "10";
+		cardStream << "T";
 		break;
 	case 11:
 		cardStream << "K";
